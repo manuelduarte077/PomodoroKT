@@ -76,7 +76,7 @@ fun CustomDialog(
 
                 ContentAboutApp(
                     title = "Developer",
-                    content = "Hari Agus W",
+                    content = "manuelduarte077",
                     textColor = textColor
                 )
 

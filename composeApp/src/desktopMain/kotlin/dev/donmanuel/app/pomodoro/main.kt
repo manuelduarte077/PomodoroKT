@@ -9,8 +9,6 @@ fun main() = application {
     Window(
         onCloseRequest = ::exitApplication,
         title = "Pomodoro",
-        resizable = true,
-        state = rememberWindowState(width = 800.dp, height = 600.dp),
     ) {
         PomodoroApp()
     }

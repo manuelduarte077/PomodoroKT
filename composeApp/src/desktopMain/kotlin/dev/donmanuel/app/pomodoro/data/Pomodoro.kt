@@ -7,7 +7,7 @@ import pomodoro.composeapp.generated.resources.ic_break
 import pomodoro.composeapp.generated.resources.ic_focus
 
 enum class Pomodoro(
-    val title: String,
+    var title: String,
     var timer: Int,
     val textColor: Color,
     val icon: DrawableResource,

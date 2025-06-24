@@ -10,10 +10,12 @@ import androidx.compose.runtime.setValue
 import dev.donmanuel.app.pomodoro.data.Pomodoro
 import dev.donmanuel.app.pomodoro.data.PomodoroSettings
 import dev.donmanuel.app.pomodoro.data.Speed
+import dev.donmanuel.app.pomodoro.presentation.components.CustomFocusDialog
+import dev.donmanuel.app.pomodoro.presentation.components.FocusTypeSelector
 import dev.donmanuel.app.pomodoro.presentation.view.desktop.PomodoroDesktopLayout
 import dev.donmanuel.app.pomodoro.presentation.view.mobile.PomodoroMobileLayout
-import kotlinx.coroutines.delay
 import dev.donmanuel.app.pomodoro.utils.platform
+import kotlinx.coroutines.delay
 
 @Composable
 fun PomodoroApp() {
@@ -25,22 +27,29 @@ fun PomodoroApp() {
     var speedTime by remember { mutableStateOf(Speed.NORMAL) }
     var completedPomodoros by remember { mutableStateOf(0) }
     
+    // Estado para la pantalla de selección de tipo de enfoque
+    var showFocusSelector by remember { mutableStateOf(true) }
+    var showCustomDialog by remember { mutableStateOf(false) }
+    var focusTitle by remember { mutableStateOf("Focus") }
+    
     val settings = remember { PomodoroSettings() }
     
-    // Update timer values from settings
-    LaunchedEffect(settings) {
-        Pomodoro.FOCUS.timer = settings.focusTime.value
-        Pomodoro.BREAK.timer = settings.shortBreakTime.value
-        Pomodoro.LONG_BREAK.timer = settings.longBreakTime.value
+    // Función para aplicar la configuración seleccionada
+    fun applyFocusTypeSettings(title: String, focusTime: Int, shortBreakTime: Int, longBreakTime: Int, cycles: Int) {
+        focusTitle = title
+        Pomodoro.FOCUS.title = "Focus - $title"
+        Pomodoro.FOCUS.timer = focusTime
+        Pomodoro.BREAK.timer = shortBreakTime
+        Pomodoro.LONG_BREAK.timer = longBreakTime
+        settings.cyclesBeforeLongBreak.value = cycles
         
-        // Update current timer if needed
-        if (pomodoro == Pomodoro.FOCUS && !isPlayPomodoro) {
-            timerLeft = settings.focusTime.value
-        } else if (pomodoro == Pomodoro.BREAK && !isPlayPomodoro) {
-            timerLeft = settings.shortBreakTime.value
-        } else if (pomodoro == Pomodoro.LONG_BREAK && !isPlayPomodoro) {
-            timerLeft = settings.longBreakTime.value
+        // Actualizar el timer actual si no está en reproducción
+        if (!isPlayPomodoro) {
+            timerLeft = pomodoro.timer
         }
+        
+        // Cerrar la pantalla de selección
+        showFocusSelector = false
     }
 
     LaunchedEffect(key1 = isPlayPomodoro) {
@@ -75,36 +84,72 @@ fun PomodoroApp() {
     val platform = platform()
 
     MaterialTheme {
-        if (platform.isDesktop) {
-            PomodoroDesktopLayout(
-                pomodoro = pomodoro,
-                isPlayPomodoro = isPlayPomodoro,
-                timerLeft = timerLeft,
-                speedTime = speedTime,
-                isShowDialog = isShowDialog,
-                isShowSettingsDialog = isShowSettingsDialog,
-                settings = settings,
-                completedPomodoros = completedPomodoros,
-                onPlayPause = { isPlayPomodoro = it },
-                onSpeedChange = { speedTime = it },
-                onDialogToggle = { isShowDialog = it },
-                onSettingsToggle = { isShowSettingsDialog = it }
+        if (showFocusSelector) {
+            // Pantalla de selección de tipo de enfoque
+            FocusTypeSelector(
+                onSelectFocusType = { title, focusTime, shortBreakTime, longBreakTime, cycles ->
+                    if (title == "Personalizado") {
+                        showCustomDialog = true
+                    } else {
+                        applyFocusTypeSettings(title, focusTime, shortBreakTime, longBreakTime, cycles)
+                    }
+                }
             )
+            
+            // Diálogo para configuración personalizada
+            if (showCustomDialog) {
+                CustomFocusDialog(
+                    onDismiss = { showCustomDialog = false },
+                    onConfirm = { title, focusTime, shortBreakTime, longBreakTime, cycles ->
+                        applyFocusTypeSettings(title, focusTime, shortBreakTime, longBreakTime, cycles)
+                    }
+                )
+            }
         } else {
-            PomodoroMobileLayout(
-                pomodoro = pomodoro,
-                isPlayPomodoro = isPlayPomodoro,
-                timerLeft = timerLeft,
-                speedTime = speedTime,
-                isShowDialog = isShowDialog,
-                isShowSettingsDialog = isShowSettingsDialog,
-                settings = settings,
-                completedPomodoros = completedPomodoros,
-                onPlayPause = { isPlayPomodoro = it },
-                onSpeedChange = { speedTime = it },
-                onDialogToggle = { isShowDialog = it },
-                onSettingsToggle = { isShowSettingsDialog = it }
-            )
+            // Pantalla principal del Pomodoro
+            if (platform.isDesktop) {
+                PomodoroDesktopLayout(
+                    pomodoro = pomodoro,
+                    isPlayPomodoro = isPlayPomodoro,
+                    timerLeft = timerLeft,
+                    speedTime = speedTime,
+                    isShowDialog = isShowDialog,
+                    isShowSettingsDialog = isShowSettingsDialog,
+                    settings = settings,
+                    completedPomodoros = completedPomodoros,
+                    onPlayPause = { isPlayPomodoro = it },
+                    onSpeedChange = { speedTime = it },
+                    onDialogToggle = { isShowDialog = it },
+                    onSettingsToggle = { isShowSettingsDialog = it },
+                    onBackToFocusSelector = { 
+                        // Detener el timer si está en reproducción
+                        isPlayPomodoro = false
+                        // Mostrar la pantalla de selección de tipo de enfoque
+                        showFocusSelector = true 
+                    }
+                )
+            } else {
+                PomodoroMobileLayout(
+                    pomodoro = pomodoro,
+                    isPlayPomodoro = isPlayPomodoro,
+                    timerLeft = timerLeft,
+                    speedTime = speedTime,
+                    isShowDialog = isShowDialog,
+                    isShowSettingsDialog = isShowSettingsDialog,
+                    settings = settings,
+                    completedPomodoros = completedPomodoros,
+                    onPlayPause = { isPlayPomodoro = it },
+                    onSpeedChange = { speedTime = it },
+                    onDialogToggle = { isShowDialog = it },
+                    onSettingsToggle = { isShowSettingsDialog = it },
+                    onBackToFocusSelector = { 
+                        // Detener el timer si está en reproducción
+                        isPlayPomodoro = false
+                        // Mostrar la pantalla de selección de tipo de enfoque
+                        showFocusSelector = true 
+                    }
+                )
+            }
         }
     }
 }

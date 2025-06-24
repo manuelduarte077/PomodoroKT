@@ -2,10 +2,15 @@ package dev.donmanuel.app.pomodoro.presentation.components
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -14,6 +19,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -35,6 +41,8 @@ fun PomodoroContent(
     isPlayPomodoro: Boolean,
     timerLeft: Int,
     speedTime: Speed,
+    completedPomodoros: Int = 0,
+    totalPomodoros: Int = 4,
     onPlayPause: (Boolean) -> Unit,
     onSpeedChange: (Speed) -> Unit,
     onDialogToggle: (Boolean) -> Unit
@@ -72,6 +80,32 @@ fun PomodoroContent(
         lineHeight = 148.sp,
         color = pomodoro.textColor
     )
+    
+    // Display completed pomodoros
+    if (pomodoro == Pomodoro.FOCUS) {
+        Row(
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(bottom = 16.dp)
+        ) {
+            for (i in 1..totalPomodoros) {
+                val color = if (i <= completedPomodoros) {
+                    pomodoro.buttonColorPrimary
+                } else {
+                    pomodoro.buttonColorSecond
+                }
+                Surface(
+                    modifier = Modifier.size(12.dp),
+                    shape = CircleShape,
+                    color = color,
+                    border = BorderStroke(1.dp, pomodoro.textColor.copy(alpha = 0.2f))
+                ) {}
+                if (i < totalPomodoros) {
+                    Spacer(modifier = Modifier.width(8.dp))
+                }
+            }
+        }
+    }
 
     Row(
         verticalAlignment = Alignment.CenterVertically

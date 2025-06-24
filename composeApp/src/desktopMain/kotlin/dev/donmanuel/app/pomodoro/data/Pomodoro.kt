@@ -37,6 +37,17 @@ enum class Pomodoro(
         backgroundColor = Color(0xFFF2FFF5),
         buttonColorPrimary = Color(0xFF8CE8A1),
         buttonColorSecond = Color(0xFFDAFAE0)
+    ),
+    
+    LONG_BREAK(
+        title = "Long Break",
+        timer = 900,
+        textColor = Color(0xFF0A3A58),
+        icon = Res.drawable.ic_break,
+        iconColor = Color(0xFF0A3A58),
+        backgroundColor = Color(0xFFF0F9FF),
+        buttonColorPrimary = Color(0xFF7CBBFF),
+        buttonColorSecond = Color(0xFFD9EEFF)
     )
 
 }

@@ -4,6 +4,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -59,7 +60,7 @@ fun SettingsDialog(
                     Image(
                         modifier = Modifier
                             .size(24.dp)
-                            .clickable {
+                            .clickable(indication = null, interactionSource = remember { MutableInteractionSource() }) {
                                 onCloseDialog()
                             },
                         painter = painterResource(Res.drawable.ic_close),
@@ -124,7 +125,8 @@ fun SettingsDialog(
                     shape = RoundedCornerShape(8.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = textColor
-                    )
+                    ),
+                    interactionSource = remember { MutableInteractionSource() }
                 ) {
                     Text(
                         text = "Save Settings",

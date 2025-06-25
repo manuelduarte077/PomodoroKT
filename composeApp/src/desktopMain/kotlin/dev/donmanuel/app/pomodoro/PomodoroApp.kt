@@ -12,8 +12,10 @@ import dev.donmanuel.app.pomodoro.data.PomodoroSettings
 import dev.donmanuel.app.pomodoro.data.Speed
 import dev.donmanuel.app.pomodoro.presentation.components.CustomFocusDialog
 import dev.donmanuel.app.pomodoro.presentation.components.FocusTypeSelector
+import dev.donmanuel.app.pomodoro.presentation.components.NotificationAlert
 import dev.donmanuel.app.pomodoro.presentation.view.desktop.PomodoroDesktopLayout
 import dev.donmanuel.app.pomodoro.presentation.view.mobile.PomodoroMobileLayout
+import dev.donmanuel.app.pomodoro.utils.NotificationManager
 import dev.donmanuel.app.pomodoro.utils.platform
 import kotlinx.coroutines.delay
 
@@ -27,35 +29,41 @@ fun PomodoroApp() {
     var speedTime by remember { mutableStateOf(Speed.NORMAL) }
     var completedPomodoros by remember { mutableStateOf(0) }
     
-    // Estado para la pantalla de selección de tipo de enfoque
     var showFocusSelector by remember { mutableStateOf(true) }
     var showCustomDialog by remember { mutableStateOf(false) }
-    var focusTitle by remember { mutableStateOf("Focus") }
-    
+
     val settings = remember { PomodoroSettings() }
+
+    val notificationManager = remember { NotificationManager() }
     
-    // Función para aplicar la configuración seleccionada
     fun applyFocusTypeSettings(title: String, focusTime: Int, shortBreakTime: Int, longBreakTime: Int, cycles: Int) {
-        focusTitle = title
         Pomodoro.FOCUS.title = "Focus - $title"
         Pomodoro.FOCUS.timer = focusTime
         Pomodoro.BREAK.timer = shortBreakTime
         Pomodoro.LONG_BREAK.timer = longBreakTime
         settings.cyclesBeforeLongBreak.value = cycles
         
-        // Actualizar el timer actual si no está en reproducción
         if (!isPlayPomodoro) {
             timerLeft = pomodoro.timer
         }
         
-        // Cerrar la pantalla de selección
+        // Actualizar el título en el gestor de notificaciones
+        notificationManager.currentTitle = title
+        
         showFocusSelector = false
     }
 
     LaunchedEffect(key1 = isPlayPomodoro) {
+        if (isPlayPomodoro) {
+            notificationManager.resetNotifications()
+        }
+        
         while (isPlayPomodoro && timerLeft > 0) {
             delay(speedTime.speed)
             timerLeft--
+            
+            // Verificar si es momento de mostrar una notificación
+            notificationManager.checkTimeForNotifications(timerLeft, isPlayPomodoro)
 
             if (timerLeft <= 0) {
                 when (pomodoro) {
@@ -65,14 +73,17 @@ fun PomodoroApp() {
                         if (completedPomodoros >= settings.cyclesBeforeLongBreak.value) {
                             pomodoro = Pomodoro.LONG_BREAK
                             completedPomodoros = 0
+                            notificationManager.finishedMessage = "¡Tiempo de Focus completado! Es hora de tomar un descanso largo."
                         } else {
                             pomodoro = Pomodoro.BREAK
+                            notificationManager.finishedMessage = "¡Tiempo de Focus completado! Es hora de tomar un descanso corto."
                         }
                         timerLeft = pomodoro.timer
                         isPlayPomodoro = false
                     }
                     Pomodoro.BREAK, Pomodoro.LONG_BREAK -> {
                         pomodoro = Pomodoro.FOCUS
+                        notificationManager.finishedMessage = "¡Tiempo de descanso completado! Es hora de volver a concentrarse."
                         timerLeft = pomodoro.timer
                         isPlayPomodoro = false
                     }
@@ -84,8 +95,34 @@ fun PomodoroApp() {
     val platform = platform()
 
     MaterialTheme {
+        NotificationAlert(
+            showNotification = notificationManager.showFiveMinNotification,
+            title = "Alerta de tiempo - ${pomodoro.title}",
+            message = notificationManager.fiveMinMessage,
+            backgroundColor = pomodoro.backgroundColor,
+            textColor = pomodoro.textColor,
+            onDismiss = {}
+        )
+        
+        NotificationAlert(
+            showNotification = notificationManager.showThreeMinNotification,
+            title = "Alerta de tiempo - ${pomodoro.title}",
+            message = notificationManager.threeMinMessage,
+            backgroundColor = pomodoro.backgroundColor,
+            textColor = pomodoro.textColor,
+            onDismiss = {}
+        )
+        
+        NotificationAlert(
+            showNotification = notificationManager.showFinishedNotification,
+            title = "¡Tiempo completado! - ${pomodoro.title}",
+            message = notificationManager.finishedMessage,
+            backgroundColor = pomodoro.backgroundColor,
+            textColor = pomodoro.textColor,
+            onDismiss = {}
+        )
+        
         if (showFocusSelector) {
-            // Pantalla de selección de tipo de enfoque
             FocusTypeSelector(
                 onSelectFocusType = { title, focusTime, shortBreakTime, longBreakTime, cycles ->
                     if (title == "Personalizado") {
@@ -96,7 +133,6 @@ fun PomodoroApp() {
                 }
             )
             
-            // Diálogo para configuración personalizada
             if (showCustomDialog) {
                 CustomFocusDialog(
                     onDismiss = { showCustomDialog = false },
@@ -106,7 +142,6 @@ fun PomodoroApp() {
                 )
             }
         } else {
-            // Pantalla principal del Pomodoro
             if (platform.isDesktop) {
                 PomodoroDesktopLayout(
                     pomodoro = pomodoro,
@@ -122,10 +157,9 @@ fun PomodoroApp() {
                     onDialogToggle = { isShowDialog = it },
                     onSettingsToggle = { isShowSettingsDialog = it },
                     onBackToFocusSelector = { 
-                        // Detener el timer si está en reproducción
                         isPlayPomodoro = false
-                        // Mostrar la pantalla de selección de tipo de enfoque
-                        showFocusSelector = true 
+                        notificationManager.resetNotifications()
+                        showFocusSelector = true
                     }
                 )
             } else {
@@ -143,10 +177,9 @@ fun PomodoroApp() {
                     onDialogToggle = { isShowDialog = it },
                     onSettingsToggle = { isShowSettingsDialog = it },
                     onBackToFocusSelector = { 
-                        // Detener el timer si está en reproducción
                         isPlayPomodoro = false
-                        // Mostrar la pantalla de selección de tipo de enfoque
-                        showFocusSelector = true 
+                        notificationManager.resetNotifications()
+                        showFocusSelector = true
                     }
                 )
             }

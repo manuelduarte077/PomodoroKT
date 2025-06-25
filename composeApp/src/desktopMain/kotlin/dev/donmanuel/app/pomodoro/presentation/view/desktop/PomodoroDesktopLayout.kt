@@ -45,7 +45,6 @@ fun PomodoroDesktopLayout(
             .fillMaxSize()
             .background(color = pomodoro.backgroundColor)
     ) {
-        // Settings button in the top-right corner
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -62,7 +61,6 @@ fun PomodoroDesktopLayout(
             )
         }
 
-        // Botón para cambiar el tipo de enfoque
         Row(
             modifier = Modifier
                 .align(Alignment.TopStart)
@@ -80,7 +78,6 @@ fun PomodoroDesktopLayout(
             )
         }
 
-        // Main content
         Row(
             modifier = Modifier.fillMaxSize(),
             horizontalArrangement = Arrangement.SpaceEvenly,

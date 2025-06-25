@@ -47,7 +47,6 @@ fun FocusTypeSelector(
             modifier = Modifier.padding(bottom = 32.dp)
         )
         
-        // Pomodoro estándar
         FocusTypeCard(
             title = "Pomodoro",
             focusTime = 25,
@@ -61,7 +60,6 @@ fun FocusTypeSelector(
         
         Spacer(modifier = Modifier.height(16.dp))
         
-        // Estudio
         FocusTypeCard(
             title = "Estudio",
             focusTime = 50,
@@ -74,8 +72,7 @@ fun FocusTypeSelector(
         )
         
         Spacer(modifier = Modifier.height(16.dp))
-        
-        // Trabajo
+
         FocusTypeCard(
             title = "Trabajo",
             focusTime = 45,
@@ -89,7 +86,6 @@ fun FocusTypeSelector(
         
         Spacer(modifier = Modifier.height(16.dp))
         
-        // Sesión corta
         FocusTypeCard(
             title = "Sesión Corta",
             focusTime = 15,
@@ -103,10 +99,8 @@ fun FocusTypeSelector(
         
         Spacer(modifier = Modifier.height(24.dp))
         
-        // Personalizado
         Button(
             onClick = { 
-                // Mostrar diálogo para configuración personalizada
                 onSelectFocusType("Personalizado", 25 * 60, 5 * 60, 15 * 60, 4)
             },
             colors = ButtonDefaults.buttonColors(
@@ -166,209 +160,6 @@ fun FocusTypeCard(
                 TimeInfoItem(label = "Short Break", value = "$shortBreakTime min", textColor = textColor)
                 TimeInfoItem(label = "Long Break", value = "$longBreakTime min", textColor = textColor)
                 TimeInfoItem(label = "Ciclos", value = "$cycles", textColor = textColor)
-            }
-        }
-    }
-}
-
-@Composable
-fun TimeInfoItem(
-    label: String,
-    value: String,
-    textColor: Color
-) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            text = label,
-            fontFamily = GetFontPoppinsMedium(),
-            fontSize = 12.sp,
-            color = textColor.copy(alpha = 0.6f)
-        )
-        
-        Text(
-            text = value,
-            fontFamily = GetFontPoppinsSemiBold(),
-            fontSize = 14.sp,
-            color = textColor
-        )
-    }
-}
-
-@OptIn(ExperimentalResourceApi::class)
-@Composable
-fun CustomFocusDialog(
-    onDismiss: () -> Unit,
-    onConfirm: (String, Int, Int, Int, Int) -> Unit
-) {
-    var focusTime by remember { mutableStateOf(25) }
-    var shortBreakTime by remember { mutableStateOf(5) }
-    var longBreakTime by remember { mutableStateOf(15) }
-    var cycles by remember { mutableStateOf(4) }
-    
-    val backgroundColor = Pomodoro.FOCUS.backgroundColor
-    val textColor = Pomodoro.FOCUS.textColor
-    
-    Dialog(onDismissRequest = { onDismiss() }) {
-        Surface(
-            shape = RoundedCornerShape(16.dp),
-            color = backgroundColor
-        ) {
-            Column(
-                modifier = Modifier
-                    .padding(24.dp)
-                    .fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = "Configuración Personalizada",
-                    fontFamily = GetFontPoppinsSemiBold(),
-                    fontSize = 20.sp,
-                    color = textColor,
-                    modifier = Modifier.padding(bottom = 24.dp)
-                )
-                
-                TimeSettingItem(
-                    title = "Tiempo de Focus (min)",
-                    value = focusTime,
-                    textColor = textColor,
-                    onValueChange = { focusTime = it }
-                )
-                
-                Spacer(modifier = Modifier.height(16.dp))
-                
-                TimeSettingItem(
-                    title = "Tiempo de Short Break (min)",
-                    value = shortBreakTime,
-                    textColor = textColor,
-                    onValueChange = { shortBreakTime = it }
-                )
-                
-                Spacer(modifier = Modifier.height(16.dp))
-                
-                TimeSettingItem(
-                    title = "Tiempo de Long Break (min)",
-                    value = longBreakTime,
-                    textColor = textColor,
-                    onValueChange = { longBreakTime = it }
-                )
-                
-                Spacer(modifier = Modifier.height(16.dp))
-                
-                TimeSettingItem(
-                    title = "Ciclos antes de Long Break",
-                    value = cycles,
-                    textColor = textColor,
-                    onValueChange = { cycles = it },
-                    minValue = 1,
-                    maxValue = 10
-                )
-                
-                Spacer(modifier = Modifier.height(24.dp))
-                
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Button(
-                        onClick = { onDismiss() },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = textColor.copy(alpha = 0.5f)
-                        ),
-                        shape = RoundedCornerShape(8.dp)
-                    ) {
-                        Text(
-                            text = "Cancelar",
-                            fontFamily = GetFontPoppinsMedium(),
-                            fontSize = 16.sp,
-                            color = backgroundColor,
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-                        )
-                    }
-                    
-                    Button(
-                        onClick = { 
-                            onConfirm("Personalizado", focusTime * 60, shortBreakTime * 60, longBreakTime * 60, cycles)
-                        },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = textColor
-                        ),
-                        shape = RoundedCornerShape(8.dp)
-                    ) {
-                        Text(
-                            text = "Guardar",
-                            fontFamily = GetFontPoppinsMedium(),
-                            fontSize = 16.sp,
-                            color = backgroundColor,
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalResourceApi::class)
-@Composable
-fun TimeSettingItem(
-    title: String,
-    value: Int,
-    textColor: Color,
-    onValueChange: (Int) -> Unit,
-    minValue: Int = 1,
-    maxValue: Int = 60
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = title,
-            fontFamily = GetFontPoppinsMedium(),
-            fontSize = 14.sp,
-            color = textColor
-        )
-        
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            IconButton(
-                onClick = { 
-                    if (value > minValue) {
-                        onValueChange(value - 1)
-                    }
-                }
-            ) {
-                Icon(
-                    painter = painterResource(Res.drawable.ic_minus),
-                    contentDescription = "Menos",
-                    tint = textColor
-                )
-            }
-            
-            Text(
-                text = "$value",
-                fontFamily = GetFontPoppinsSemiBold(),
-                fontSize = 16.sp,
-                color = textColor,
-                modifier = Modifier.padding(horizontal = 8.dp)
-            )
-            
-            IconButton(
-                onClick = { 
-                    if (value < maxValue) {
-                        onValueChange(value + 1)
-                    }
-                }
-            ) {
-                Icon(
-                    painter = painterResource(Res.drawable.ic_plus),
-                    contentDescription = "Más",
-                    tint = textColor
-                )
             }
         }
     }

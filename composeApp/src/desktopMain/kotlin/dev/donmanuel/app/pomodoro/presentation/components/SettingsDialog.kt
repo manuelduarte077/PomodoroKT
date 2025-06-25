@@ -12,7 +12,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -71,7 +70,6 @@ fun SettingsDialog(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Focus time setting
                 TimeSettingItem(
                     title = "Focus Time (minutes)",
                     value = settings.focusTime.value / 60,
@@ -83,7 +81,6 @@ fun SettingsDialog(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Short break time setting
                 TimeSettingItem(
                     title = "Short Break (minutes)",
                     value = settings.shortBreakTime.value / 60,
@@ -95,7 +92,6 @@ fun SettingsDialog(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Long break time setting
                 TimeSettingItem(
                     title = "Long Break (minutes)",
                     value = settings.longBreakTime.value / 60,
@@ -107,7 +103,6 @@ fun SettingsDialog(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Cycles before long break setting
                 TimeSettingItem(
                     title = "Cycles Before Long Break",
                     value = settings.cyclesBeforeLongBreak.value,
@@ -121,7 +116,6 @@ fun SettingsDialog(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // Save button
                 Button(
                     onClick = {
                         onSaveSettings(settings)

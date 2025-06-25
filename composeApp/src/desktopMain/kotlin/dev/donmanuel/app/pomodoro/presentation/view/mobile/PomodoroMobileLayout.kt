@@ -54,7 +54,6 @@ fun PomodoroMobileLayout(
             .fillMaxSize()
             .background(pomodoro.backgroundColor)
     ) {
-        // Header with settings button
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -71,7 +70,6 @@ fun PomodoroMobileLayout(
             )
         }
 
-        // Botón para cambiar el tipo de enfoque
         Row(
             modifier = Modifier
                 .align(Alignment.TopStart)
